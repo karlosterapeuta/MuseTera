@@ -4,6 +4,6 @@ export const metadata: Metadata = {
   title: 'MuseTera',
   description: 'Sistema de Gestão para Musicoterapeutas',
   icons: {
-    icon: './favicon.ico',
+    icon: '/icon.svg',
   },
 }
