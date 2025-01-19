@@ -23,6 +23,11 @@ const nextConfig = {
     HOSTNAME: '0.0.0.0'
   },
   webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      poll: 800,
+      aggregateTimeout: 300,
+    };
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': './src'
