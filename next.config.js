@@ -4,6 +4,7 @@ const nextConfig = {
   experimental: {
     esmExternals: true,
     largePageDataBytes: 128 * 100000,
+    scrollRestoration: false
   },
   images: {
     domains: ['jztbkimlcrfndooyhohg.supabase.co'],
