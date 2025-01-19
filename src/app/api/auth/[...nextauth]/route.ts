@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       id: 'credentials',
@@ -53,13 +53,15 @@ const authOptions: AuthOptions = {
           console.log('Autenticação bem-sucedida')
           return {
             id: user.id,
-            email: user.email,
             name: user.name,
-            professionalRegister: user.professionalRegister
+            email: user.email,
+            image: user.image
           }
         } catch (error) {
           console.error('Erro durante autenticação:', error)
           return null
+        } finally {
+          await prisma.$disconnect()
         }
       }
     })
@@ -68,25 +70,16 @@ const authOptions: AuthOptions = {
     signIn: '/login',
     error: '/login'
   },
-  debug: false,
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60 // 30 dias
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.email = user.email
-        token.professionalRegister = user.professionalRegister
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session?.user) {
         session.user.id = token.id as string
-        session.user.email = token.email as string
-        session.user.professionalRegister = token.professionalRegister as string
       }
       return session
     }
@@ -94,5 +87,6 @@ const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET
 }
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+export const { auth, handlers: { GET, POST } } = NextAuth(authOptions)
+
+export { GET, POST }

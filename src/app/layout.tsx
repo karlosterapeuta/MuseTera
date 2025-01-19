@@ -4,7 +4,12 @@ import { Toaster } from '@/components/ui/Toast'
 import { Providers } from '@/components/providers'
 import { ScrollManager } from '@/components/ScrollManager'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'sans-serif']
+})
 
 export const metadata = {
   title: 'Sistema de Gerenciamento',
