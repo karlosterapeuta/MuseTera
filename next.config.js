@@ -19,7 +19,7 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   env: {
-    PORT: process.env.PORT || 3000,
+    PORT: '3000',
     HOSTNAME: '0.0.0.0'
   },
   webpack: (config) => {
@@ -31,7 +31,7 @@ const nextConfig = {
     config.resolve.alias = {
       ...config.resolve.alias,
       '@': './src'
-    }
+    };
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
