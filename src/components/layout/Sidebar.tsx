@@ -75,11 +75,12 @@ export function Sidebar() {
 
   return (
     <>
+      {/* Mobile sidebar */}
       <Transition.Root show={isOpen} as={Fragment}>
         <Dialog 
           as="div" 
-          className="fixed inset-0 z-50" 
-          onClose={() => {}}
+          className="lg:hidden" 
+          onClose={close}
         >
           <Transition.Child
             as={Fragment}
@@ -90,10 +91,10 @@ export function Sidebar() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="fixed inset-0 bg-gray-900/80" />
+            <div className="absolute inset-0 bg-gray-900/80" />
           </Transition.Child>
 
-          <div className="fixed inset-0 flex">
+          <div className="absolute inset-0 flex">
             <Transition.Child
               as={Fragment}
               enter="transition ease-in-out duration-300 transform"
@@ -147,7 +148,7 @@ export function Sidebar() {
                         className="group flex w-full items-center gap-x-3 rounded-lg p-3 text-base font-semibold leading-7 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
                       >
                         <ArrowRightOnRectangleIcon className="h-7 w-7 shrink-0 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
-                        Sair do Sistema
+                        <span>Sair</span>
                       </button>
                     </div>
                   </nav>
@@ -158,67 +159,56 @@ export function Sidebar() {
         </Dialog>
       </Transition.Root>
 
-      {/* Sidebar desktop */}
-      <Transition
-        show={isOpen}
-        as={Fragment}
-        enter="transition-all ease-in-out duration-300"
-        enterFrom="-translate-x-0 opacity-0"
-        enterTo="translate-x-0 opacity-100"
-        leave="transition-all ease-in-out duration-300"
-        leaveFrom="translate-x-0 opacity-100"
-        leaveTo="-translate-x-0 opacity-0"
-      >
-        <div className="fixed inset-y-0 z-50 hidden lg:flex w-72 xl:w-80 flex-col">
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
-            <div className="flex h-20 shrink-0 items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/logo-musicoterapia.png"
-                  alt="Logo Musicoterapia"
-                  width={40}
-                  height={40}
-                  className="object-contain"
-                />
-                <h1 className="text-xl font-bold text-indigo-600">MuseTera</h1>
-              </div>
-              <button 
-                onClick={close}
-                className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+      {/* Desktop sidebar */}
+      <aside className={`hidden lg:block w-72 xl:w-80 ${isOpen ? 'block' : 'hidden'}`}>
+        <div className="flex h-full flex-col gap-y-5 border-r border-gray-200 bg-white px-6 pb-4">
+          <div className="flex h-20 shrink-0 items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/logo-musicoterapia.png"
+                alt="Logo Musicoterapia"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <h1 className="text-xl font-bold text-indigo-600">MuseTera</h1>
+            </div>
+            <button 
+              onClick={close}
+              className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+            >
+              <XMarkIcon className="h-7 w-7" />
+            </button>
+          </div>
+          <nav className="flex flex-1 flex-col justify-between">
+            <ul role="list" className="flex flex-1 flex-col gap-y-7">
+              {navigation.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className={getItemClass(isActive(item.href))}
+                  >
+                    <item.icon
+                      className={getIconClass(isActive(item.href))}
+                      aria-hidden="true"
+                    />
+                    <span>{item.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-gray-200 pt-4">
+              <button
+                onClick={handleLogout}
+                className="group flex w-full items-center gap-x-3 rounded-lg p-3 text-base font-semibold leading-7 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
               >
-                <XMarkIcon className="h-7 w-7" />
+                <ArrowRightOnRectangleIcon className="h-7 w-7 shrink-0 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
+                <span>Sair</span>
               </button>
             </div>
-            <nav className="flex flex-1 flex-col justify-between">
-              <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      className={getItemClass(isActive(item.href))}
-                    >
-                      <item.icon
-                        className={getIconClass(isActive(item.href))}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <div className="border-t border-gray-200 pt-4">
-                <button
-                  onClick={handleLogout}
-                  className="group flex w-full items-center gap-x-3 rounded-lg p-3 text-base font-semibold leading-7 text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
-                >
-                  <ArrowRightOnRectangleIcon className="h-7 w-7 shrink-0 text-gray-500 group-hover:text-red-600 transition-colors duration-200" />
-                  Sair do Sistema
-                </button>
-              </div>
-            </nav>
-          </div>
+          </nav>
         </div>
-      </Transition>
+      </aside>
     </>
   )
 }
