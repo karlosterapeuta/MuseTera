@@ -5,19 +5,6 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Função helper para verificar a conexão
-export async function checkSupabaseConnection() {
-  try {
-    const { data, error } = await supabase.from('patients').select('count')
-    if (error) throw error
-    console.log('Conexão com Supabase estabelecida com sucesso!')
-    return true
-  } catch (error) {
-    console.error('Erro ao conectar com Supabase:', error)
-    return false
-  }
-}
-
 // Tipos para as tabelas principais
 export interface Patient {
   id: string
@@ -48,12 +35,25 @@ export interface Assessment {
 
 // Funções helpers para operações comuns
 export const supabaseHelpers = {
+  // Função helper para verificar a conexão
+  async checkSupabaseConnection() {
+    try {
+      const { data, error } = await supabase.from('patients').select('count')
+      if (error) throw error
+      console.log('Conexão com Supabase estabelecida com sucesso!')
+      return true
+    } catch (error) {
+      console.error('Erro ao conectar com Supabase:', error)
+      return false
+    }
+  },
+
   // Pacientes
   async getPatients() {
     const { data, error } = await supabase
       .from('patients')
       .select('*')
-      .order('name')
+      .order('created_at', { ascending: false })
     if (error) throw error
     return data
   },

@@ -1,4 +1,16 @@
-"use client"
+envVars:
+  - key: NEXT_PUBLIC_SUPABASE_URL
+    value: https://jztbkimlcrfndooyhohg.supabase.co
+  - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+    value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dGJraW1sY3JmbmRvb3lob2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxMDIzODQsImV4cCI6MjA1MjY3ODM4NH0.Q6nTndaG8t4rOp-Gp0Fo8JTGPfVKLeKJ25ml_5HpVxsbuildCommand: |
+      echo "Installing dependencies..."
+      npm install
+      echo "Building application..."
+      npm run buildbuildCommand: |
+      echo "Installing dependencies..."
+      npm install
+      echo "Building application..."
+      npm run build"use client"
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"

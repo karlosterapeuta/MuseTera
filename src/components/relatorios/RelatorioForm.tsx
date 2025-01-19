@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { jsPDF } from 'jspdf'
 import { Card } from '@/components/ui/Card'
-import { toast } from 'react-hot-toast'
+import { toast } from '@/components/ui/Toast'
 import { PatientSelect } from '../processos/PatientSelect'
 import { Patient } from '@/types'
 import { formatarData } from '@/utils/formatters'

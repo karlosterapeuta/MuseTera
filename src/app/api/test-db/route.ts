@@ -21,12 +21,8 @@ export async function GET() {
     const sessionData = {
       patient_id: patient.id,
       date: new Date().toISOString(),
-      notes: 'Sessão de teste para verificar integração',
-      emotional_state: {
-        frequency: 600,
-        consciousness: 'Paz',
-        emotion: 'Felicidade'
-      }
+      notes: 'Sessão de teste',
+      emotional_state: 'Neutro'
     }
     const session = await supabaseHelpers.createSession(sessionData)
 
@@ -36,36 +32,28 @@ export async function GET() {
       date: new Date().toISOString(),
       type: 'inicial',
       content: {
-        objetivo: 'Teste de integração',
-        observacoes: 'Avaliação criada para testar o banco de dados'
+        observacoes: 'Avaliação de teste',
+        conclusao: 'Teste concluído com sucesso'
       }
     }
     const assessment = await supabaseHelpers.createAssessment(assessmentData)
 
-    // 5. Buscar dados inseridos
-    const patients = await supabaseHelpers.getPatients()
-    const sessions = await supabaseHelpers.getSessionsByPatientId(patient.id)
-    const assessments = await supabaseHelpers.getAssessmentsByPatientId(patient.id)
-
     return NextResponse.json({
       success: true,
+      message: 'Teste completo!',
       data: {
         patient,
         session,
-        assessment,
-        counts: {
-          patients: patients.length,
-          sessions: sessions.length,
-          assessments: assessments.length
-        }
+        assessment
       }
     })
 
   } catch (error) {
-    console.error('Erro durante os testes:', error)
+    console.error('Erro no teste:', error)
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+      message: error.message || 'Erro interno no servidor',
+      error: error
     }, { status: 500 })
   }
 }

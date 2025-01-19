@@ -4,15 +4,7 @@ services:
     env: node
     region: oregon
     plan: free
-    buildCommand: |
-      echo "Installing dependencies..."
-      npm install
-      echo "Generating Prisma Client..."
-      npx prisma generate
-      echo "Running database migrations..."
-      npx prisma migrate deploy
-      echo "Building application..."
-      npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_VERSION
@@ -21,24 +13,21 @@ services:
         value: production
       - key: PORT
         value: 3000
-      - key: DATABASE_URL
-        value: postgres://postgres.jztbkimlcrfndooyhohg:elL5xqA3fvL6jITMrkL2G6eFKVD/S6l13lNEwxzDUZtrCToJ/TJzc5dPFny+veARy8ChxRs4ul2JhjTqZ8Dl0g==@aws-0-us-west-1.pooler.supabase.com:5432/postgres
-      - key: DIRECT_URL
-        value: postgres://postgres.jztbkimlcrfndooyhohg:elL5xqA3fvL6jITMrkL2G6eFKVD/S6l13lNEwxzDUZtrCToJ/TJzc5dPFny+veARy8ChxRs4ul2JhjTqZ8Dl0g==@aws-0-us-west-1.pooler.supabase.com:5432/postgres
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://jztbkimlcrfndooyhohg.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dGJraW1sY3JmbmRvb3lob2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxMDIzODQsImV4cCI6MjA1MjY3ODM4NH0.Q6nTndaG8t4rOp-Gp0Fo8JTGPfVKLeKJ25ml_5HpVxs
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dGJraW1sY3JmbmRvb3lob2hnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczNzEwMjM4NCwiZXhwIjoyMDUyNjc4Mzg0fQ.NBbewBjXl8rmBmSdNcK2MEg2_7gIZHvzno_n9KEwck4
       - key: NEXTAUTH_URL
         value: https://sistema-musetera-2.onrender.com
       - key: NEXTAUTH_SECRET
         value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6dGJraW1sY3JmbmRvb3lob2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxMDIzODQsImV4cCI6MjA1MjY3ODM4NH0.Q6nTndaG8t4rOp-Gp0Fo8JTGPfVKLeKJ25ml_5HpVxs
-      - key: DEBUG
-        value: "prisma:*,next:*"
-      - key: NODE_OPTIONS
-        value: "--trace-warnings"
     healthCheckPath: /api/health
     autoDeploy: true
     buildFilter:
       paths:
         - src/**/*.ts
         - src/**/*.tsx
-        - prisma/**/*.prisma
         - package.json
         - next.config.js

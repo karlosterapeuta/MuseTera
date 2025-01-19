@@ -1,6 +1,6 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from '@/components/ui/Toast'
 import { Providers } from '@/components/providers'
 import { LayoutClient } from '@/components/LayoutClient'
 
@@ -21,10 +21,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <LayoutClient>
+            <Toaster />
             {children}
           </LayoutClient>
         </Providers>
-        <Toaster position="top-right" />
       </body>
     </html>
   )

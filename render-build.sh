@@ -15,12 +15,8 @@ rm -rf node_modules/.cache
 echo "Instalando dependências..."
 npm install
 
-# Gerar Prisma Client
-echo "Gerando Prisma Client..."
-npx prisma generate
-
-# Build do Next.js
-echo "Iniciando build..."
+# Build da aplicação
+echo "Construindo a aplicação..."
 npm run build
 
 echo "Build completo!"
