@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "npm ci && tsc --version && next build",
+    "build": "npm install && next build",
     "start": "next start -p $PORT",
     "lint": "next lint",
     "postinstall": "npx prisma generate"
@@ -38,8 +38,10 @@
     "react": "^18.2.0",
     "react-big-calendar": "^1.17.1",
     "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.5.1",
     "react-icons": "^4.12.0",
     "recharts": "^2.10.3",
+    "shadcn/ui": "^2.5.6",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3"
   },
