@@ -8,9 +8,9 @@ export interface User {
 
 export interface Patient {
   id: string;
-  nome: string;
-  dataNascimento: Date;
-  telefone: string;
+  name: string;
+  birthDate: Date;
+  phone: string;
   therapistId: string;
   status: 'active' | 'inactive';
   createdAt: Date;
@@ -21,6 +21,11 @@ export interface Session {
   patientId: string;
   date: Date;
   notes: string;
+  emotional_state: {
+    frequency: number;
+    consciousness: string;
+    emotion: string;
+  };
   interventions: string[];
   evaluation?: {
     demucaScale: number;

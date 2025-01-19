@@ -12,9 +12,10 @@ async function testSupabaseConnection() {
     console.log('\n2. Criando paciente de teste...')
     const patientData = {
       name: 'Paciente Teste',
-      birth_date: '2000-01-01',
-      contact: '(11) 99999-9999',
-      responsible: 'Responsável Teste'
+      birthDate: '2000-01-01',
+      phone: '(11) 99999-9999',
+      therapistId: '123',
+      status: 'active' as const
     }
     const patient = await supabaseHelpers.createPatient(patientData)
     console.log('✅ Paciente criado:', patient)
@@ -22,14 +23,15 @@ async function testSupabaseConnection() {
     // 3. Criar sessão de teste
     console.log('\n3. Criando sessão de teste...')
     const sessionData = {
-      patient_id: patient.id,
+      patientId: patient.id,
       date: new Date().toISOString(),
       notes: 'Sessão de teste para verificar integração',
       emotional_state: {
         frequency: 600,
         consciousness: 'Paz',
         emotion: 'Felicidade'
-      }
+      },
+      interventions: []
     }
     const session = await supabaseHelpers.createSession(sessionData)
     console.log('✅ Sessão criada:', session)
@@ -37,7 +39,7 @@ async function testSupabaseConnection() {
     // 4. Criar avaliação de teste
     console.log('\n4. Criando avaliação de teste...')
     const assessmentData = {
-      patient_id: patient.id,
+      patientId: patient.id,
       date: new Date().toISOString(),
       type: 'inicial',
       content: {
@@ -49,22 +51,19 @@ async function testSupabaseConnection() {
     console.log('✅ Avaliação criada:', assessment)
 
     // 5. Buscar dados inseridos
-    console.log('\n5. Buscando dados inseridos...')
+    console.log('\n5. Verificando dados inseridos...')
     const patients = await supabaseHelpers.getPatients()
-    console.log('✅ Pacientes encontrados:', patients.length)
-    
     const sessions = await supabaseHelpers.getSessionsByPatientId(patient.id)
-    console.log('✅ Sessões do paciente:', sessions.length)
-    
     const assessments = await supabaseHelpers.getAssessmentsByPatientId(patient.id)
-    console.log('✅ Avaliações do paciente:', assessments.length)
 
-    console.log('\n✨ Todos os testes completados com sucesso!')
-    return true
+    console.log('✅ Dados recuperados com sucesso!')
+    console.log('Total de pacientes:', patients.length)
+    console.log('Total de sessões:', sessions.length)
+    console.log('Total de avaliações:', assessments.length)
 
   } catch (error) {
     console.error('❌ Erro durante os testes:', error)
-    return false
+    throw error
   }
 }
 

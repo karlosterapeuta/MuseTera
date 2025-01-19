@@ -10,7 +10,7 @@ export function usePatients() {
     
     const formattedPatients = savedPatients.map((patient: any) => ({
       ...patient,
-      dataNascimento: new Date(patient.dataNascimento),
+      birthDate: new Date(patient.birthDate),
       createdAt: new Date(patient.createdAt)
     }))
 

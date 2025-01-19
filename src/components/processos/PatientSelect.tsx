@@ -52,7 +52,7 @@ export function PatientSelect({ onSelect, selectedId, disabled, className = '' }
             value={patient.id}
             className="text-xs sm:text-sm"
           >
-            {patient.nome}
+            {patient.name}
           </option>
         ))}
       </select>

@@ -12,11 +12,11 @@ interface AvaliacaoPDFProps {
 
 export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) {
   const handleDownload = () => {
-    if (!patient?.nome) return // Evita gerar PDF sem nome do paciente
+    if (!patient?.name) return // Evita gerar PDF sem nome do paciente
 
     // Criar nova instância do PDF
     const doc = new jsPDF()
-    let yPos = 20
+    let yPos = 50
 
     // Recuperar dados do musicoterapeuta
     let profissionalInfo = {
@@ -37,7 +37,7 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
 
     // Título
     doc.setFontSize(18)
-    doc.text('Avaliação Musicoterapêutica', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' })
+    doc.text('Avaliação Musicoterapêutica', doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' })
     yPos += 15
 
     // Data e identificação
@@ -52,12 +52,12 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
     yPos += 10
 
     doc.setFontSize(12)
-    doc.text(`Nome: ${patient?.nome || 'Não informado'}`, 20, yPos)
-    yPos += 7
-    doc.text(`Data de Nascimento: ${patient?.dataNascimento ? new Date(patient.dataNascimento).toLocaleDateString('pt-BR') : 'Não informado'}`, 20, yPos)
-    yPos += 7
-    doc.text(`Contato: ${patient?.telefone || 'Não informado'}`, 20, yPos)
-    yPos += 7
+    doc.text(`Nome: ${patient?.name || 'Não informado'}`, 20, yPos)
+    yPos += 10
+    doc.text(`Data de Nascimento: ${patient?.birthDate ? new Date(patient.birthDate).toLocaleDateString('pt-BR') : 'Não informado'}`, 20, yPos)
+    yPos += 10
+    doc.text(`Contato: ${patient?.phone || 'Não informado'}`, 20, yPos)
+    yPos += 10
     doc.text(`Status: ${patient?.status === 'active' ? 'Ativo' : 'Inativo'}`, 20, yPos)
     yPos += 15
 
@@ -145,7 +145,7 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
     addFooter(doc, profissionalInfo)
 
     // Salva o PDF com o nome do paciente
-    const fileName = `avaliacao_${patient.nome.toLowerCase().replace(/\s+/g, '_')}`
+    const fileName = `avaliacao_${patient.name.toLowerCase().replace(/\s+/g, '_')}`
     doc.save(`${fileName}.pdf`)
   }
 
@@ -153,7 +153,7 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
     <button
       onClick={handleDownload}
       className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
-      disabled={!patient?.nome} // Desabilita o botão se não houver paciente selecionado
+      disabled={!patient?.name} // Desabilita o botão se não houver paciente selecionado
     >
       Exportar PDF
     </button>

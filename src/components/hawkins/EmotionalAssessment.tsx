@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Card } from '@/components/ui/card'
+import { Card } from '@/components/ui/Card'
 import { HAWKINS_LEVELS, EmotionalLevel } from '@/types/hawkins'
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 
