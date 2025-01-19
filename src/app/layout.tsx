@@ -2,6 +2,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/Toast'
 import { Providers } from '@/components/providers'
+import { ScrollManager } from '@/components/ScrollManager'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,12 +20,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="h-full">
       <head>
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} h-full`}>
         <Providers>
+          <ScrollManager />
           <Toaster />
           {children}
         </Providers>
