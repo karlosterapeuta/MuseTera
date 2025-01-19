@@ -9,7 +9,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams?.get('from') || '/dashboard'
+  const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
@@ -41,7 +41,7 @@ export default function LoginPage() {
         email: formData.email,
         password: formData.password,
         redirect: false,
-        callbackUrl: `${window.location.origin}${callbackUrl}`
+        callbackUrl
       })
 
       if (result?.error) {
@@ -49,11 +49,10 @@ export default function LoginPage() {
         setError('Email ou senha inválidos')
       } else if (result?.ok) {
         router.push(callbackUrl)
-        router.refresh()
       }
-    } catch (err) {
-      console.error('Erro ao fazer login:', err)
-      setError('Ocorreu um erro ao fazer login. Tente novamente.')
+    } catch (error) {
+      console.error('Erro ao fazer login:', error)
+      setError('Erro ao fazer login. Tente novamente.')
     } finally {
       setLoading(false)
     }
