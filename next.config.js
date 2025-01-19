@@ -18,6 +18,9 @@ const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   compress: true,
+  env: {
+    PORT: process.env.PORT || 3000,
+  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
