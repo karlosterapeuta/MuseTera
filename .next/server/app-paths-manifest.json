@@ -1,7 +1,8 @@
 {
-  "/biblioteca/page": "app/biblioteca/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/profissional/page": "app/profissional/page.js",
   "/relatorios/novo/page": "app/relatorios/novo/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
-  "/relatorios/page": "app/relatorios/page.js"
+  "/relatorios/page": "app/relatorios/page.js",
+  "/biblioteca/page": "app/biblioteca/page.js"
 }
