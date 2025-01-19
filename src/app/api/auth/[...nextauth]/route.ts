@@ -14,12 +14,18 @@ const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials): Promise<User | null> {
+        console.log('Iniciando processo de autenticação')
+
         if (!credentials?.email || !credentials?.password) {
           console.log('Credenciais ausentes')
           return null
         }
 
         try {
+          console.log('Tentando conectar ao banco de dados...')
+          await prisma.$connect()
+          console.log('Conexão com banco de dados estabelecida')
+
           console.log('Buscando usuário:', credentials.email)
           const user = await prisma.user.findUnique({
             where: {
