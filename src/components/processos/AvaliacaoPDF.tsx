@@ -1,135 +1,40 @@
 'use client'
 
 import { Patient } from '@/types'
+import { AvaliacaoQuestion, AVALIACAO_QUESTIONS } from '@/types/avaliacao'
 import jsPDF from 'jspdf'
 
 interface AvaliacaoPDFProps {
   patient: Patient
-  data: Record<string, string>
+  data: Record<string, string | string[]>
   observacoes: string
-}
-
-const ESCALA_DEMUCA = [
-  {
-    categoria: 'Comportamentos restritivos',
-    parametros: [
-      'Estereotipias',
-      'Agressividade',
-      'Desinteresse',
-      'Passividade',
-      'Resistência',
-      'Reclusão (isolamento)',
-      'Pirraça'
-    ],
-    escala: {
-      nao: 2,
-      pouco: 1,
-      muito: 0
-    }
-  },
-  {
-    categoria: 'Interação social / Cognição',
-    parametros: [
-      'Contato visual',
-      'Comunicação verbal',
-      'Interação com instrumentos musicais',
-      'Interação com outros objetos',
-      'Interação com educador ou musicoterapeuta',
-      'Interação com pais (se aplicável)',
-      'Interação com pares (se aplicável)',
-      'Atenção',
-      'Imitação'
-    ],
-    escala: {
-      nao: 0,
-      pouco: 1,
-      muito: 2
-    }
-  },
-  {
-    categoria: 'Percepção / Exploração rítmica',
-    parametros: [
-      'Pulso interno',
-      'Regulação temporal',
-      { nome: 'Apoio', multiplicador: 2 },
-      { nome: 'Ritmo real', multiplicador: 2 },
-      { nome: 'Contrastes de andamento', multiplicador: 2 }
-    ],
-    escala: {
-      nao: 0,
-      pouco: 1,
-      muito: 2
-    }
-  },
-  {
-    categoria: 'Percepção / Exploração sonora',
-    parametros: [
-      'Som/silêncio',
-      'Timbre',
-      'Planos de altura',
-      'Movimento sonoro',
-      'Contrastes de intensidade',
-      'Repetição de ideias rítmicas e/ou melódicas',
-      'Senso de conclusão'
-    ],
-    escala: {
-      nao: 0,
-      pouco: 1,
-      muito: 2
-    }
-  },
-  {
-    categoria: 'Exploração vocal',
-    parametros: [
-      'Vocalizações',
-      'Balbucios',
-      'Sílabas canônica',
-      { nome: 'Imitação de canções', multiplicador: 2 },
-      { nome: 'Criação vocal', multiplicador: 2 }
-    ],
-    escala: {
-      nao: 0,
-      pouco: 1,
-      muito: 2
-    }
-  },
-  {
-    categoria: 'Movimentação corporal com a música',
-    parametros: [
-      'Andar',
-      'Correr',
-      'Parar',
-      'Dançar',
-      'Pular',
-      'Girar',
-      'Balançar'
-    ],
-    escala: {
-      nao: 0,
-      pouco: 1,
-      muito: 2
-    }
-  }
-]
-
-function calcularPontuacao(categoria: typeof ESCALA_DEMUCA[0], avaliacoes: Record<string, string>) {
-  return categoria.parametros.reduce((total, parametro) => {
-    const nome = typeof parametro === 'string' ? parametro : parametro.nome
-    const multiplicador = typeof parametro === 'string' ? 1 : parametro.multiplicador || 1
-    const valor = avaliacoes[nome]
-    if (!valor) return total
-    return total + (categoria.escala[valor as keyof typeof categoria.escala] * multiplicador)
-  }, 0)
 }
 
 export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) {
   const handleDownload = () => {
+    if (!patient?.nome) return // Evita gerar PDF sem nome do paciente
+
+    // Criar nova instância do PDF
     const doc = new jsPDF()
     let yPos = 20
 
-    // Configurações de fonte e tamanho
-    doc.setFont('helvetica')
-    
+    // Recuperar dados do musicoterapeuta
+    let profissionalInfo = {
+      nome: '',
+      registro: ''
+    }
+
+    if (typeof window !== 'undefined') {
+      const savedProfessional = localStorage.getItem('professional')
+      if (savedProfessional) {
+        const profissionalData = JSON.parse(savedProfessional)
+        profissionalInfo = {
+          nome: profissionalData.nome,
+          registro: profissionalData.registro
+        }
+      }
+    }
+
     // Título
     doc.setFontSize(18)
     doc.text('Avaliação Musicoterapêutica', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' })
@@ -147,42 +52,66 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
     yPos += 10
 
     doc.setFontSize(12)
-    doc.text(`Nome: ${patient?.name || 'Não informado'}`, 20, yPos)
+    doc.text(`Nome: ${patient?.nome || 'Não informado'}`, 20, yPos)
     yPos += 7
-    doc.text(`Data de Nascimento: ${patient?.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString('pt-BR') : 'Não informado'}`, 20, yPos)
+    doc.text(`Data de Nascimento: ${patient?.dataNascimento ? new Date(patient.dataNascimento).toLocaleDateString('pt-BR') : 'Não informado'}`, 20, yPos)
     yPos += 7
-    doc.text(`Contato: ${patient?.contactInfo?.phone || 'Não informado'}`, 20, yPos)
+    doc.text(`Contato: ${patient?.telefone || 'Não informado'}`, 20, yPos)
     yPos += 7
     doc.text(`Status: ${patient?.status === 'active' ? 'Ativo' : 'Inativo'}`, 20, yPos)
     yPos += 15
 
-    // Avaliação DEMUCA
-    ESCALA_DEMUCA.forEach(categoria => {
+    // Questões da Avaliação
+    const questionsByCategory = AVALIACAO_QUESTIONS.reduce((acc, question) => {
+      if (!acc[question.category]) {
+        acc[question.category] = []
+      }
+      acc[question.category].push(question)
+      return acc
+    }, {} as Record<string, AvaliacaoQuestion[]>)
+
+    Object.entries(questionsByCategory).forEach(([category, questions]) => {
       // Verifica se precisa adicionar nova página
-      if (yPos > doc.internal.pageSize.getHeight() - 40) {
+      if (yPos > doc.internal.pageSize.getHeight() - 20) {
         doc.addPage()
         yPos = 20
       }
 
       // Título da categoria
       doc.setFontSize(14)
-      doc.text(`${categoria.categoria} - Pontuação: ${calcularPontuacao(categoria, data)}`, 20, yPos)
+      doc.text(translateCategory(category), 20, yPos)
       yPos += 10
 
-      // Parâmetros
+      // Questões
       doc.setFontSize(12)
-      categoria.parametros.forEach(parametro => {
-        const nome = typeof parametro === 'string' ? parametro : parametro.nome
-        const valor = data[nome] || 'Não avaliado'
-
+      questions.forEach(question => {
         // Verifica se precisa adicionar nova página
-        if (yPos > doc.internal.pageSize.getHeight() - 20) {
+        if (yPos > doc.internal.pageSize.getHeight() - 40) {
           doc.addPage()
           yPos = 20
         }
 
-        doc.text(`${nome}: ${valor}`, 20, yPos)
+        // Adiciona o rodapé em cada página
+        addFooter(doc, profissionalInfo)
+
+        doc.setFont('helvetica', 'bold')
+        doc.text(question.question, 20, yPos)
         yPos += 7
+
+        doc.setFont('helvetica', 'normal')
+        const resposta = formatValue(data?.[question.id])
+        const linhas = doc.splitTextToSize(resposta, doc.internal.pageSize.getWidth() - 40)
+        linhas.forEach((linha: string) => {
+          if (yPos > doc.internal.pageSize.getHeight() - 20) {
+            doc.addPage()
+            yPos = 20
+            // Adiciona o rodapé na nova página
+            addFooter(doc, profissionalInfo)
+          }
+          doc.text(linha, 20, yPos)
+          yPos += 7
+        })
+        yPos += 3
       })
       yPos += 10
     })
@@ -204,23 +133,74 @@ export function AvaliacaoPDF({ patient, data, observacoes }: AvaliacaoPDFProps) 
         if (yPos > doc.internal.pageSize.getHeight() - 20) {
           doc.addPage()
           yPos = 20
+          // Adiciona o rodapé na nova página
+          addFooter(doc, profissionalInfo)
         }
         doc.text(linha, 20, yPos)
         yPos += 7
       })
     }
 
-    // Salva o PDF
-    doc.save(`avaliacao_${patient.name.toLowerCase().replace(/\s+/g, '_')}.pdf`)
+    // Adiciona o rodapé na última página
+    addFooter(doc, profissionalInfo)
+
+    // Salva o PDF com o nome do paciente
+    const fileName = `avaliacao_${patient.nome.toLowerCase().replace(/\s+/g, '_')}`
+    doc.save(`${fileName}.pdf`)
   }
 
   return (
     <button
       onClick={handleDownload}
-      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+      disabled={!patient?.nome} // Desabilita o botão se não houver paciente selecionado
     >
-      <DocumentArrowDownIcon className="h-4 w-4" />
       Exportar PDF
     </button>
   )
+}
+
+function translateCategory(category: string) {
+  const translations: Record<string, string> = {
+    aspectos_sonoros: 'Aspectos Sonoro-Musicais',
+    aspectos_fisicos: 'Aspectos Físicos',
+    aspectos_cognitivos: 'Aspectos Cognitivos',
+    aspectos_sociais: 'Aspectos Sociais',
+    aspectos_emocionais: 'Aspectos Emocionais',
+    aspectos_musicais: 'Aspectos Musicais',
+    conclusao: 'Conclusão'
+  }
+  return translations[category] || category
+}
+
+function formatValue(value: string | string[] | undefined): string {
+  if (!value) return '-'
+  if (Array.isArray(value)) {
+    return value.join(', ')
+  }
+  return value
+}
+
+function addFooter(doc: jsPDF, profissionalInfo: { nome: string, registro: string }) {
+  const pageHeight = doc.internal.pageSize.getHeight()
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  
+  // Adiciona linha horizontal
+  doc.setDrawColor(200, 200, 200) // cor cinza claro
+  doc.line(20, pageHeight - 25, doc.internal.pageSize.getWidth() - 20, pageHeight - 25)
+  
+  // Centraliza o texto do rodapé
+  const footerText = profissionalInfo.nome && profissionalInfo.registro ? [
+    profissionalInfo.nome,
+    `Musicoterapeuta - MT ${profissionalInfo.registro}`,
+    new Date().toLocaleDateString('pt-BR')
+  ] : []
+  
+  footerText.forEach((text, index) => {
+    doc.setFont('helvetica', 'normal')
+    const textWidth = doc.getStringUnitWidth(text) * doc.getFontSize() / doc.internal.scaleFactor
+    const x = (doc.internal.pageSize.getWidth() - textWidth) / 2
+    doc.text(text, x, pageHeight - 20 + (index * 5))
+  })
 }

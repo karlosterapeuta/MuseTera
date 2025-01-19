@@ -14,6 +14,7 @@ import { Logo } from '@/components/Logo'
 export default function ReavaliacaoPage() {
   const router = useRouter()
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [idade, setIdade] = useState('')
 
   return (
     <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -28,48 +29,59 @@ export default function ReavaliacaoPage() {
               <h1 className="text-2xl font-bold text-gray-900 mb-6">Reavaliação Musicoterapêutica</h1>
               
               <div className="space-y-6">
-                <div>
-                  <div className="flex items-end gap-4">
-                    <div className="flex-1">
+                <div className="flex flex-col space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="w-full">
+                      <label className="block text-lg md:text-xl font-medium text-gray-700 mb-2">
+                        Selecione o Paciente
+                      </label>
                       <PatientSelect
                         onSelect={setSelectedPatient}
                         selectedId={selectedPatient?.id}
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg md:text-xl text-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+                        style={{
+                          fontSize: '18px',
+                          lineHeight: '1.5',
+                          minHeight: '45px'
+                        }}
                       />
                     </div>
-                    <Link
-                      href="/pacientes/novo"
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 inline-flex items-center gap-2"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Novo Paciente
-                    </Link>
+
+                    <div className="w-full">
+                      <label className="block text-lg md:text-xl font-medium text-gray-700 mb-2">
+                        Idade
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg md:text-xl text-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+                        style={{
+                          fontSize: '18px',
+                          lineHeight: '1.5',
+                          minHeight: '45px'
+                        }}
+                        value={idade}
+                        onChange={(e) => setIdade(e.target.value)}
+                        placeholder="Digite a idade"
+                      />
+                    </div>
                   </div>
+
+                  {selectedPatient && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                      <p className="text-lg md:text-xl text-gray-700">
+                        <span className="font-medium">Paciente selecionado:</span> {selectedPatient.name}
+                      </p>
+                      {idade && (
+                        <p className="text-lg md:text-xl text-gray-700 mt-2">
+                          <span className="font-medium">Idade:</span> {idade} anos
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {selectedPatient && (
-                  <div className="mt-6">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                      Reavaliação de {selectedPatient.name}
-                    </h2>
-                    <ReavaliacaoForm patient={selectedPatient} />
-                  </div>
-                )}
-
-                {!selectedPatient && (
-                  <div className="text-center py-6 text-gray-500">
-                    Selecione um paciente para iniciar a reavaliação musicoterapêutica
-                  </div>
+                  <ReavaliacaoForm patient={selectedPatient} idade={idade} />
                 )}
               </div>
             </div>
@@ -80,7 +92,7 @@ export default function ReavaliacaoPage() {
   )
 }
 
-function ReavaliacaoForm({ patient }: { patient: Patient }) {
+function ReavaliacaoForm({ patient, idade }: { patient: Patient, idade: string }) {
   const router = useRouter()
   const { addReavaliacao } = useReavaliacoes()
   const [formData, setFormData] = useState<Record<string, string | string[]>>({})
@@ -221,6 +233,7 @@ function ReavaliacaoForm({ patient }: { patient: Patient }) {
         <ReavaliacaoPDF 
           patient={patient}
           data={formData}
+          idade={idade}
         />
       </div>
     </form>

@@ -8,11 +8,9 @@ export interface User {
 
 export interface Patient {
   id: string;
-  name: string;
-  dateOfBirth: Date;
-  contactInfo: {
-    phone: string;
-  };
+  nome: string;
+  dataNascimento: Date;
+  telefone: string;
   therapistId: string;
   status: 'active' | 'inactive';
   createdAt: Date;

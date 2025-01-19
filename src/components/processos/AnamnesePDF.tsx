@@ -11,12 +11,27 @@ interface AnamnesePDFProps {
 
 export function AnamnesePDF({ patient, data }: AnamnesePDFProps) {
   const handleDownload = () => {
+    // Criar nova instância do PDF
     const doc = new jsPDF()
     let yPos = 20
 
-    // Configurações de fonte e tamanho
-    doc.setFont('helvetica')
-    
+    // Recuperar dados do musicoterapeuta
+    let profissionalInfo = {
+      nome: '',
+      registro: ''
+    }
+
+    if (typeof window !== 'undefined') {
+      const savedProfessional = localStorage.getItem('professional')
+      if (savedProfessional) {
+        const profissionalData = JSON.parse(savedProfessional)
+        profissionalInfo = {
+          nome: profissionalData.nome,
+          registro: profissionalData.registro
+        }
+      }
+    }
+
     // Título
     doc.setFontSize(18)
     doc.text('Anamnese Musicoterapêutica', doc.internal.pageSize.getWidth() / 2, yPos, { align: 'center' })
@@ -73,6 +88,9 @@ export function AnamnesePDF({ patient, data }: AnamnesePDFProps) {
           yPos = 20
         }
 
+        // Adiciona o rodapé em cada página
+        addFooter(doc, profissionalInfo)
+
         doc.setFont('helvetica', 'bold')
         doc.text(question.question, 20, yPos)
         yPos += 7
@@ -84,6 +102,8 @@ export function AnamnesePDF({ patient, data }: AnamnesePDFProps) {
           if (yPos > doc.internal.pageSize.getHeight() - 20) {
             doc.addPage()
             yPos = 20
+            // Adiciona o rodapé na nova página
+            addFooter(doc, profissionalInfo)
           }
           doc.text(linha, 20, yPos)
           yPos += 7
@@ -92,6 +112,9 @@ export function AnamnesePDF({ patient, data }: AnamnesePDFProps) {
       })
       yPos += 10
     })
+
+    // Adiciona o rodapé na última página
+    addFooter(doc, profissionalInfo)
 
     // Salva o PDF
     doc.save(`anamnese_${patient.name.toLowerCase().replace(/\s+/g, '_')}.pdf`)
@@ -126,4 +149,27 @@ function formatValue(value: string | string[] | undefined): string {
     return value.join(', ')
   }
   return value
+}
+
+function addFooter(doc: jsPDF, profissionalInfo: { nome: string, registro: string }) {
+  const pageHeight = doc.internal.pageSize.getHeight()
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  
+  // Adiciona linha horizontal
+  doc.setDrawColor(200, 200, 200) // cor cinza claro
+  doc.line(20, pageHeight - 25, doc.internal.pageSize.getWidth() - 20, pageHeight - 25)
+  
+  // Centraliza o texto do rodapé
+  const footerText = [
+    profissionalInfo.nome,
+    `Musicoterapeuta - MT ${profissionalInfo.registro}`,
+    new Date().toLocaleDateString('pt-BR')
+  ]
+  
+  footerText.forEach((text, index) => {
+    const textWidth = doc.getStringUnitWidth(text) * 10 / doc.internal.scaleFactor
+    const x = (doc.internal.pageSize.getWidth() - textWidth) / 2
+    doc.text(text, x, pageHeight - 20 + (index * 5))
+  })
 }

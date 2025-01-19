@@ -1,1 +1,8 @@
-{}
+{
+  "/profissional/page": "app/profissional/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/biblioteca/page": "app/biblioteca/page.js",
+  "/relatorios/page": "app/relatorios/page.js",
+  "/relatorios/novo/page": "app/relatorios/novo/page.js"
+}

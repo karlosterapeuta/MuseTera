@@ -24,7 +24,9 @@ export default function PlanoPage() {
 
         {selectedPatient && (
           <Card className="mt-6">
-            <PlanoTerapeuticoPanel />
+            <PlanoTerapeuticoPanel 
+              patient={selectedPatient} 
+            />
           </Card>
         )}
       </div>

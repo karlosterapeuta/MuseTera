@@ -52,6 +52,15 @@ export default function NovoRelatorioPage() {
         tipo={tipo} 
         onSubmit={handleSubmit}
       />
+      <div className="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-3 sm:space-y-0 sm:space-x-reverse">
+        <button
+          type="button"
+          onClick={gerarPDF}
+          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          Gerar PDF
+        </button>
+      </div>
     </div>
   )
 } 

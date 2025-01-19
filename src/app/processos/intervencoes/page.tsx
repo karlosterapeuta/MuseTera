@@ -197,6 +197,7 @@ export default function IntervencoesPage() {
   const [observacoes, setObservacoes] = useState('')
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
   const [data, setData] = useState('')
+  const [idade, setIdade] = useState<string>('')
 
   const toggleAtividade = (categoria: string, atividade: string) => {
     setIntervencoesSelecionadas(prev => {
@@ -248,166 +249,207 @@ export default function IntervencoesPage() {
   const gerarPDF = () => {
     const doc = new jsPDF()
 
+    // Recuperar dados do musicoterapeuta
+    let profissionalInfo = {
+      nome: '',
+      registro: ''
+    }
+
+    const savedProfessional = localStorage.getItem('professional')
+    if (savedProfessional) {
+      const profissionalData = JSON.parse(savedProfessional)
+      profissionalInfo = {
+        nome: profissionalData.nome,
+        registro: profissionalData.registro
+      }
+    }
+
     // Título do documento
-    doc.setFontSize(20)
-    doc.text('Intervenção Musicoterapêutica', doc.internal.pageSize.getWidth() / 2, 20, { align: 'center' })
+    doc.setFontSize(16)
+    doc.text('Registro de Intervenções Musicoterapêuticas', 105, 20, { align: 'center' })
 
     // Informações do paciente
     doc.setFontSize(12)
     doc.text(`Nome do Paciente: ${selectedPatient?.nome}`, 20, 40)
-    doc.text(`Data: ${data}`, 20, 50)
+    doc.text(`Idade: ${idade}`, 20, 50)
+    doc.text(`Data: ${data}`, 20, 60)
 
     // Intervenções selecionadas
     doc.setFontSize(14)
-    doc.text('Intervenções Selecionadas', 20, 70)
+    doc.text('Intervenções Selecionadas', 20, 80)
 
-    let yOffset = 80
+    let yOffset = 90
     Object.entries(intervencoesSelecionadas).forEach(([categoria, dados]) => {
       doc.setFontSize(12)
       doc.text(`Categoria: ${categoria}`, 20, yOffset)
       yOffset += 10
 
-      doc.setFontSize(10)
-      doc.text('Atividades:', 30, yOffset)
-      yOffset += 10
-      dados.atividades.forEach(atividade => {
-        doc.text(`• ${atividade}`, 40, yOffset)
-        yOffset += 7
-      })
+      if (dados.atividades.length > 0) {
+        doc.text('Atividades:', 30, yOffset)
+        yOffset += 10
+        dados.atividades.forEach(atividade => {
+          doc.text(`• ${atividade}`, 40, yOffset)
+          yOffset += 7
+        })
+      }
+
+      if (dados.objetivos.length > 0) {
+        yOffset += 5
+        doc.text('Objetivos:', 30, yOffset)
+        yOffset += 10
+        dados.objetivos.forEach(objetivo => {
+          doc.text(`• ${objetivo}`, 40, yOffset)
+          yOffset += 7
+        })
+      }
 
       yOffset += 10
-      doc.text('Objetivos:', 30, yOffset)
-      yOffset += 10
-      dados.objetivos.forEach(objetivo => {
-        doc.text(`• ${objetivo}`, 40, yOffset)
-        yOffset += 7
-      })
-
-      yOffset += 15
     })
 
     // Observações
     if (observacoes) {
-      doc.setFontSize(12)
       doc.text('Observações:', 20, yOffset)
       yOffset += 10
       doc.setFontSize(10)
-      doc.text(observacoes, 30, yOffset, { maxWidth: 170 })
+      const splitObservacoes = doc.splitTextToSize(observacoes, 170)
+      doc.text(splitObservacoes, 20, yOffset)
+      yOffset += splitObservacoes.length * 7 + 20 // Adiciona espaço extra após as observações
     }
 
-    // Salvar o PDF
-    doc.save('intervencao.pdf')
+    // Verifica se precisa adicionar nova página
+    const pageHeight = doc.internal.pageSize.getHeight()
+    if (yOffset > pageHeight - 60) {
+      doc.addPage()
+      yOffset = 20
+    }
+
+    // Adiciona assinatura do profissional no final
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'normal')
+    
+    // Adiciona linha para assinatura
+    doc.setDrawColor(0)
+    const lineY = yOffset + 20
+    doc.line(20, lineY, 190, lineY)
+    
+    // Adiciona informações do profissional
+    doc.text(profissionalInfo.nome, 105, lineY + 10, { align: 'center' })
+    doc.text(`Musicoterapeuta - MT ${profissionalInfo.registro}`, 105, lineY + 15, { align: 'center' })
+    doc.text(new Date().toLocaleDateString('pt-BR'), 105, lineY + 20, { align: 'center' })
+
+    // Salva o PDF
+    doc.save(`intervencoes_${selectedPatient?.nome?.toLowerCase().replace(/\s+/g, '_')}_${data}.pdf`)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
           <Logo size="sm" />
         </div>
 
-        <div className="max-w-4xl mx-auto py-6 px-4">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Planejamento de Intervenções Musicoterapêuticas</h1>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Nome do Paciente
-                </label>
-                <div className="mt-1">
-                  <PatientSelect
-                    onSelect={setSelectedPatient}
-                    selectedId={selectedPatient?.id}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Data
-                </label>
-                <input
-                  type="date"
-                  value={data}
-                  onChange={(e) => setData(e.target.value)}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-            </div>
-
-            {intervencoesPredefinidas.map((intervencao) => (
-              <div key={intervencao.categoria} className="bg-white p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  <BeakerIcon className="h-6 w-6 text-indigo-500 mr-2" />
-                  {intervencao.categoria}
-                </h2>
-
-                <div className="mb-4">
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">Atividades</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {intervencao.atividades.map((atividade) => (
-                      <label
-                        key={atividade}
-                        className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={intervencoesSelecionadas[intervencao.categoria]?.atividades.includes(atividade)}
-                          onChange={() => toggleAtividade(intervencao.categoria, atividade)}
-                          className="rounded text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span>{atividade}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">Objetivos</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {intervencao.objetivos.map((objetivo) => (
-                      <label
-                        key={objetivo}
-                        className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={intervencoesSelecionadas[intervencao.categoria]?.objetivos.includes(objetivo)}
-                          onChange={() => toggleObjetivo(intervencao.categoria, objetivo)}
-                          className="rounded text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span>{objetivo}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-medium text-gray-700 mb-2">Observações Adicionais</h3>
-              <textarea
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                className="w-full h-32 p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Adicione observações específicas sobre as intervenções..."
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
+            <div className="flex-grow">
+              <PatientSelect
+                onSelect={setSelectedPatient}
+                selectedId={selectedPatient?.id}
               />
             </div>
-
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              >
-                <CheckCircleIcon className="h-5 w-5 mr-2" />
-                Baixar PDF
-              </button>
+            <div className="w-full sm:w-32">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Idade
+              </label>
+              <input
+                type="number"
+                value={idade}
+                onChange={(e) => setIdade(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Idade"
+              />
             </div>
-          </form>
-        </div>
+            <div className="w-full sm:w-48">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Data da Sessão
+              </label>
+              <input
+                type="date"
+                value={data}
+                onChange={(e) => setData(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          {intervencoesPredefinidas.map((intervencao) => (
+            <div key={intervencao.categoria} className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <BeakerIcon className="h-6 w-6 text-indigo-500 mr-2" />
+                {intervencao.categoria}
+              </h2>
+
+              <div className="mb-4">
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Atividades</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {intervencao.atividades.map((atividade) => (
+                    <label
+                      key={atividade}
+                      className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={intervencoesSelecionadas[intervencao.categoria]?.atividades.includes(atividade)}
+                        onChange={() => toggleAtividade(intervencao.categoria, atividade)}
+                        className="rounded text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>{atividade}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-medium text-gray-700 mb-2">Objetivos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {intervencao.objetivos.map((objetivo) => (
+                    <label
+                      key={objetivo}
+                      className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={intervencoesSelecionadas[intervencao.categoria]?.objetivos.includes(objetivo)}
+                        onChange={() => toggleObjetivo(intervencao.categoria, objetivo)}
+                        className="rounded text-indigo-600 focus:ring-indigo-500"
+                      />
+                      <span>{objetivo}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <h3 className="text-lg font-medium text-gray-700 mb-2">Observações Adicionais</h3>
+            <textarea
+              value={observacoes}
+              onChange={(e) => setObservacoes(e.target.value)}
+              className="w-full h-32 p-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Adicione observações específicas sobre as intervenções..."
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <CheckCircleIcon className="h-5 w-5 mr-2" />
+              Baixar PDF
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

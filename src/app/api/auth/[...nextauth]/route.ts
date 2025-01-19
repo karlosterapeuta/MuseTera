@@ -59,8 +59,8 @@ const authOptions: AuthOptions = {
     })
   ],
   pages: {
-    signIn: '/auth',
-    error: '/auth'
+    signIn: '/login',
+    error: '/login'
   },
   debug: false,
   session: {

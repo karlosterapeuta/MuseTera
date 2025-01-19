@@ -7,12 +7,30 @@ import jsPDF from 'jspdf'
 interface ReavaliacaoPDFProps {
   patient: Patient
   data: Record<string, string | string[]>
+  idade: string
 }
 
-export function ReavaliacaoPDF({ patient, data }: ReavaliacaoPDFProps) {
-  const handleDownload = () => {
+export function ReavaliacaoPDF({ patient, data, idade }: ReavaliacaoPDFProps) {
+  const handleDownload = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault() // Previne a navegação padrão
+    
     const doc = new jsPDF()
     let yPos = 20
+
+    // Função para adicionar o rodapé
+    const addFooter = () => {
+      const footerText = "Karlos Eduardo Teixeira - Musicoterapeuta - Registro Profissional: 0066/22MT-UBAM"
+      const pageHeight = doc.internal.pageSize.getHeight()
+      
+      // Adicionar linha separadora
+      doc.setDrawColor(0)
+      doc.line(20, pageHeight - 25, doc.internal.pageSize.getWidth() - 20, pageHeight - 25)
+      
+      // Adicionar texto do rodapé
+      doc.setFontSize(10)
+      doc.setFont('helvetica', 'normal')
+      doc.text(footerText, doc.internal.pageSize.getWidth() / 2, pageHeight - 15, { align: 'center' })
+    }
 
     // Configurações de fonte e tamanho
     doc.setFont('helvetica')
@@ -31,98 +49,62 @@ export function ReavaliacaoPDF({ patient, data }: ReavaliacaoPDFProps) {
     // Dados do Paciente
     doc.setFontSize(14)
     doc.text('Dados do Paciente', 20, yPos)
-    yPos += 10
-
+    yPos += 15
+    
     doc.setFontSize(12)
-    doc.text(`Nome: ${patient?.name || 'Não informado'}`, 20, yPos)
-    yPos += 7
-    doc.text(`Data de Nascimento: ${patient?.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString('pt-BR') : 'Não informado'}`, 20, yPos)
-    yPos += 7
-    doc.text(`Contato: ${patient?.contactInfo?.phone || 'Não informado'}`, 20, yPos)
-    yPos += 7
-    doc.text(`Status: ${patient?.status === 'active' ? 'Ativo' : 'Inativo'}`, 20, yPos)
+    doc.text(`Nome: ${patient?.nome || 'Não informado'}`, 20, yPos)
+    yPos += 10
+    doc.text(`Idade: ${idade || 'Não informada'} anos`, 20, yPos)
     yPos += 15
 
     // Questões da Reavaliação
-    const questionsByCategory = REAVALIACAO_QUESTIONS.reduce((acc, question) => {
-      if (!acc[question.category]) {
-        acc[question.category] = []
-      }
-      acc[question.category].push(question)
-      return acc
-    }, {} as Record<string, ReavaliacaoQuestion[]>)
+    doc.setFontSize(14)
+    doc.text('Questões da Reavaliação', 20, yPos)
+    yPos += 10
 
-    Object.entries(questionsByCategory).forEach(([category, questions]) => {
-      // Verifica se precisa adicionar nova página
-      if (yPos > doc.internal.pageSize.getHeight() - 20) {
+    REAVALIACAO_QUESTIONS.forEach((question) => {
+      if (yPos > doc.internal.pageSize.getHeight() - 40) {
+        addFooter() // Adiciona rodapé antes de criar nova página
         doc.addPage()
         yPos = 20
       }
 
-      // Título da categoria
-      doc.setFontSize(14)
-      doc.text(translateCategory(category), 20, yPos)
+      doc.setFontSize(12)
+      doc.text(question.question, 20, yPos)
       yPos += 10
 
-      // Questões
-      doc.setFontSize(12)
-      questions.forEach(question => {
-        // Verifica se precisa adicionar nova página
+      // Resposta
+      doc.setFontSize(10)
+      const resposta = data[question.id]?.toString() || 'Não respondido'
+      const respostaLinhas = doc.splitTextToSize(resposta, 170)
+      respostaLinhas.forEach((linha: string) => {
         if (yPos > doc.internal.pageSize.getHeight() - 40) {
+          addFooter() // Adiciona rodapé antes de criar nova página
           doc.addPage()
           yPos = 20
         }
-
-        doc.setFont('helvetica', 'bold')
-        doc.text(question.question, 20, yPos)
+        doc.text(linha, 30, yPos)
         yPos += 7
-
-        doc.setFont('helvetica', 'normal')
-        const resposta = formatValue(data?.[question.id])
-        const linhas = doc.splitTextToSize(resposta, doc.internal.pageSize.getWidth() - 40)
-        linhas.forEach((linha: string) => {
-          if (yPos > doc.internal.pageSize.getHeight() - 20) {
-            doc.addPage()
-            yPos = 20
-          }
-          doc.text(linha, 20, yPos)
-          yPos += 7
-        })
-        yPos += 3
       })
-      yPos += 10
+      yPos += 5
     })
 
+    // Adiciona rodapé na última página
+    addFooter()
+
     // Salva o PDF
-    doc.save(`reavaliacao_${patient.name.toLowerCase().replace(/\s+/g, '_')}.pdf`)
+    doc.save(`reavaliacao_${patient?.nome ? patient.nome.toLowerCase().replace(/\s+/g, '_') : 'sem_nome'}.pdf`)
   }
 
   return (
     <button
       onClick={handleDownload}
-      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
+      type="button"
+      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
     >
       Exportar PDF
     </button>
   )
 }
 
-function translateCategory(category: string) {
-  const translations: Record<string, string> = {
-    desenvolvimento_musical: 'Desenvolvimento Musical',
-    aspectos_comportamentais: 'Aspectos Comportamentais',
-    aspectos_sociais: 'Aspectos Sociais',
-    aspectos_cognitivos: 'Aspectos Cognitivos',
-    aspectos_motores: 'Aspectos Motores',
-    aspectos_comunicativos: 'Aspectos Comunicativos'
-  }
-  return translations[category] || category
-}
-
-function formatValue(value: string | string[] | undefined): string {
-  if (!value) return '-'
-  if (Array.isArray(value)) {
-    return value.join(', ')
-  }
-  return value
-}
+export default ReavaliacaoPDF

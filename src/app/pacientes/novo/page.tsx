@@ -10,9 +10,9 @@ export default function NovoPacientePage() {
   const router = useRouter()
   const { addPatient } = usePatients()
   const [formData, setFormData] = useState({
-    name: '',
-    dateOfBirth: '',
-    phone: '',
+    nome: '',
+    dataNascimento: '',
+    telefone: '',
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,10 +20,10 @@ export default function NovoPacientePage() {
 
     const newPatient: Patient = {
       id: crypto.randomUUID(),
-      name: formData.name,
-      dateOfBirth: new Date(formData.dateOfBirth),
-      contactInfo: {
-        phone: formData.phone,
+      nome: formData.nome,
+      dataNascimento: new Date(formData.dataNascimento),
+      contato: {
+        telefone: formData.telefone,
       },
       therapistId: '1',
       status: 'active',
@@ -51,8 +51,8 @@ export default function NovoPacientePage() {
                 type="text"
                 required
                 className="w-full p-2 border rounded-lg"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                value={formData.nome}
+                onChange={(e) => setFormData(prev => ({ ...prev, nome: e.target.value }))}
               />
             </div>
 
@@ -64,8 +64,8 @@ export default function NovoPacientePage() {
                 type="date"
                 required
                 className="w-full p-2 border rounded-lg"
-                value={formData.dateOfBirth}
-                onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                value={formData.dataNascimento}
+                onChange={(e) => setFormData(prev => ({ ...prev, dataNascimento: e.target.value }))}
               />
             </div>
 
@@ -78,8 +78,8 @@ export default function NovoPacientePage() {
                 required
                 placeholder="(00) 00000-0000"
                 className="w-full p-2 border rounded-lg"
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                value={formData.telefone}
+                onChange={(e) => setFormData(prev => ({ ...prev, telefone: e.target.value }))}
               />
             </div>
           </div>
@@ -103,4 +103,4 @@ export default function NovoPacientePage() {
       </Card>
     </div>
   )
-} 
+}

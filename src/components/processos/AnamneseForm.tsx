@@ -42,14 +42,38 @@ export function AnamneseForm({ patient, onSubmit, initialData }: AnamneseFormPro
       case 'single':
         return (
           <select
-            className="w-full p-2 border rounded-lg"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg md:text-xl text-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+            style={{
+              fontSize: '20px',
+              lineHeight: '1.5',
+              minHeight: '45px'
+            }}
             value={value as string || ''}
             onChange={(e) => handleInputChange(question.id, e.target.value)}
             disabled={!editMode}
           >
-            <option value="">Selecione...</option>
+            <option 
+              value=""
+              className="text-lg md:text-xl py-2"
+              style={{
+                fontSize: '20px',
+                padding: '10px',
+                lineHeight: '1.5'
+              }}
+            >
+              Selecione...
+            </option>
             {question.options?.map((option) => (
-              <option key={option} value={option}>
+              <option 
+                key={option} 
+                value={option}
+                className="text-lg md:text-xl py-2"
+                style={{
+                  fontSize: '20px',
+                  padding: '10px',
+                  lineHeight: '1.5'
+                }}
+              >
                 {option}
               </option>
             ))}
@@ -117,6 +141,47 @@ export function AnamneseForm({ patient, onSubmit, initialData }: AnamneseFormPro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="mb-6">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+          <div className="w-full md:w-2/3">
+            <label className="block text-lg md:text-xl font-medium text-gray-700 mb-2">
+              Selecione o Paciente
+            </label>
+            <select
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-lg md:text-xl text-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+              style={{
+                fontSize: '20px',
+                lineHeight: '1.5',
+                minHeight: '45px'
+              }}
+              value={patient.id}
+              disabled
+            >
+              <option 
+                value={patient.id}
+                className="text-lg md:text-xl py-2"
+                style={{
+                  fontSize: '20px',
+                  padding: '10px',
+                  lineHeight: '1.5'
+                }}
+              >
+                {patient.name}
+              </option>
+            </select>
+          </div>
+          <div className="w-full md:w-1/3 md:mt-8">
+            <button
+              type="button"
+              onClick={() => setEditMode(!editMode)}
+              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200 text-lg md:text-xl font-medium flex items-center justify-center gap-2"
+            >
+              {editMode ? 'Concluir Edição' : 'Editar'}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <Card>
         <div className="p-6">
           <div className="flex justify-between items-start">
@@ -134,15 +199,6 @@ export function AnamneseForm({ patient, onSubmit, initialData }: AnamneseFormPro
                 </p>
               </div>
             </div>
-            {initialData && (
-              <button
-                type="button"
-                onClick={() => setEditMode(!editMode)}
-                className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
-              >
-                {editMode ? 'Concluir Edição' : 'Editar'}
-              </button>
-            )}
           </div>
         </div>
       </Card>

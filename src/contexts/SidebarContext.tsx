@@ -16,10 +16,10 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const toggle = () => setIsOpen(!isOpen)
   const close = () => setIsOpen(false)
 
-  // Fecha o menu quando a tela é redimensionada
+  // Fecha o menu apenas em telas pequenas quando redimensionar
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024 && isOpen) {
+      if (window.innerWidth < 768 && isOpen) {
         close()
       }
     }

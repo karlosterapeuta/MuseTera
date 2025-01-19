@@ -52,9 +52,9 @@ export default function PacientesPage() {
                 <div className="flex items-center gap-4">
                   <UserCircleIcon className="h-12 w-12 text-gray-400" />
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">{patient.name}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">{patient.nome}</h2>
                     <p className="text-sm text-gray-500">
-                      {calculateAge(patient.dateOfBirth)} anos
+                      {calculateAge(patient.dataNascimento)} anos
                     </p>
                   </div>
                 </div>
@@ -69,11 +69,11 @@ export default function PacientesPage() {
               <div className="mt-4 space-y-2">
                 <p className="text-sm">
                   <span className="font-medium">Data de Nascimento:</span>{' '}
-                  {new Date(patient.dateOfBirth).toLocaleDateString()}
+                  {new Date(patient.dataNascimento).toLocaleDateString()}
                 </p>
                 <p className="text-sm">
                   <span className="font-medium">Contato:</span>{' '}
-                  {patient.contactInfo.phone}
+                  {patient.telefone}
                 </p>
                 <p className="text-sm">
                   <span className="font-medium">Status:</span>{' '}
@@ -105,4 +105,4 @@ export default function PacientesPage() {
       </div>
     </div>
   )
-} 
+}

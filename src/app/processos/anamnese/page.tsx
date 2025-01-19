@@ -27,32 +27,34 @@ export default function AnamnesePage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-6">Anamnese Musicoterapêutica</h1>
             
             <div className="space-y-6">
-              <div>
-                <div className="flex items-end gap-4">
-                  <div className="flex-1">
+              <div className="mb-6">
+                <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                  <div className="w-full md:w-2/3">
                     <PatientSelect
                       onSelect={setSelectedPatient}
                       selectedId={selectedPatient?.id}
                     />
                   </div>
-                  <Link
-                    href="/pacientes/novo"
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 inline-flex items-center gap-2"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                  <div className="w-full md:w-1/3 md:mt-8">
+                    <Link
+                      href="/pacientes/novo"
+                      className="w-full md:w-auto px-6 py-3 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors duration-200 text-lg md:text-xl font-medium flex items-center justify-center gap-2"
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Novo Paciente
-                  </Link>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Novo Paciente
+                    </Link>
+                  </div>
                 </div>
               </div>
 
